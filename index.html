@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ömer Avcı | beIN Sports</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(135deg,#1a0033,#000);
+    color:white;
+    text-align:center;
+}
+
+header{
+    background:#6a0dad;
+    padding:25px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.6);
+}
+
+header h1{
+    margin:0;
+    font-size:2.2rem;
+}
+
+header p{
+    margin-top:10px;
+    font-size:1.2rem;
+    color:#ffd700;
+}
+
+.video-box{
+    max-width:900px;
+    margin:40px auto;
+    padding:15px;
+    background:#111;
+    border-radius:15px;
+    box-shadow:0 0 25px rgba(106,13,173,0.6);
+}
+
+video{
+    width:100%;
+    border-radius:10px;
+}
+
+button{
+    margin-top:20px;
+    padding:12px 25px;
+    font-size:1rem;
+    background:#6a0dad;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#8a2be2;
+    transform:scale(1.05);
+}
+
+footer{
+    margin-top:40px;
+    padding:20px;
+    background:#000;
+    font-size:0.9rem;
+    color:#aaa;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Ömer Avcı</h1>
+    <p>beIN Sports - Bayram iyi izlemeler diler 🎉⚽</p>
+</header>
+
+<div class="video-box">
+    <video id="player" controls autoplay muted></video>
+    <br>
+    <button onclick="toggleSound()">Sesi Aç / Kapat</button>
+</div>
+
+<footer>
+    © 2026 Ömer Avcı | beIN Sports Yayın
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+const video = document.getElementById('player');
+const videoSrc = "https://one.b2a7fa109ef84a6f.click/live/sbeinsports-1/playlist.m3u8";
+
+if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(videoSrc);
+    hls.attachMedia(video);
+} 
+else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = videoSrc;
+}
+
+function toggleSound(){
+    video.muted = !video.muted;
+}
+</script>
+
+</body>
+</html>
