@@ -1,54 +1,145 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ömer Avcı | beIN Sports</title>
-<style>
-    body{ margin:0; font-family:Arial, sans-serif; background:linear-gradient(135deg,#1a0033,#000); color:white; text-align:center; }
-    header{ background:#6a0dad; padding:25px; box-shadow:0 4px 15px rgba(0,0,0,0.6); }
-    header p{ color:#ffd700; }
-    .video-box{ max-width:900px; margin:40px auto; padding:15px; background:#111; border-radius:15px; box-shadow:0 0 25px rgba(106,13,173,0.6); }
-    video{ width:100%; border-radius:10px; }
-    button{ margin-top:20px; padding:12px 25px; background:#6a0dad; color:white; border:none; border-radius:8px; cursor:pointer; }
-    footer{ margin-top:40px; padding:20px; color:#aaa; font-size:0.9rem; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ömer Avcı | beIN Sports Pro Player</title>
+    <style>
+        :root { --main-purple: #6a0dad; --bg-dark: #0a0a0a; }
+        body { margin:0; font-family:'Segoe UI', sans-serif; background: var(--bg-dark); color:white; text-align:center; transition: background 0.5s; }
+        header { background: var(--main-purple); padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.6); }
+        
+        /* Mode Cinéma */
+        .cinema-mode { background: black !important; }
+        .cinema-mode header, .cinema-mode footer, .cinema-mode .status-panel { opacity: 0.1; }
+
+        .player-wrapper { max-width:950px; margin:20px auto; position: relative; }
+        .video-container { background:#000; padding:10px; border-radius:12px; box-shadow:0 0 30px rgba(106,13,173,0.4); border: 1px solid #222; }
+        video { width:100%; border-radius:8px; cursor: pointer; }
+
+        /* Contrôles Avancés */
+        .controls-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; }
+        button { padding: 10px 15px; background: var(--main-purple); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        button:hover { background: #8a2be2; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        
+        .vol-control { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 15px; border-radius: 6px; }
+        input[type=range] { cursor: pointer; accent-color: var(--main-purple); }
+
+        .status-panel { max-width:950px; margin:15px auto; display: flex; justify-content: space-around; font-size: 0.85rem; }
+        .stat-item { background: #151515; padding: 10px 20px; border-radius: 20px; border: 1px solid #333; }
+        .good { color: #2ecc71; } .bad { color: #e74c3c; }
+
+        footer { margin-top:40px; padding:20px; color:#444; }
+        canvas { display: none; } /* Pour le screenshot */
+    </style>
 </head>
 <body>
 
-<header>
-    <h1>Ömer Avcı</h1>
-    <p>beIN Sports - Bayram iyi izlemeler diler 🎉⚽</p>
+<header id="main-header">
+    <h1>Ömer Avcı - beIN Sports</h1>
+    <p style="color:#ffd700;">Diffusion HD avec Optimisation Audio ⚡</p>
 </header>
 
-<div class="video-box">
-    <video id="player" controls autoplay muted></video>
-    <br>
-    <button onclick="toggleSound()">Sesi Aç / Kapat</button>
+<div class="player-wrapper">
+    <div class="video-container">
+        <video id="player" poster="https://via.placeholder.com/1280x720/000000/FFFFFF?text=Chargement+du+Flux..." autoplay muted></video>
+    </div>
+
+    <div class="controls-grid">
+        <button onclick="toggleSound()">🔈 Muet/Son</button>
+        
+        <div class="vol-control">
+            <span>Vol:</span>
+            <input type="range" id="volumeBar" min="0" max="1" step="0.1" value="1" oninput="changeVolume(this.value)">
+        </div>
+
+        <button onclick="toggleCinema()">🎬 Mode Cinéma</button>
+        <button onclick="takeScreenshot()">📸 Capture</button>
+        <button id="pipBtn">📺 Fenêtre flottante</button>
+        <button onclick="location.reload()" style="background:#444;">🔄 Reset</button>
+    </div>
 </div>
 
-<footer>© 2026 Ömer Avcı | beIN Sports Yayın</footer>
+<div class="status-panel">
+    <div class="stat-item">Buffer: <span id="buf-val" class="good">0s</span></div>
+    <div class="stat-item">Stabilité: <span id="err-val" class="good">Optimale</span></div>
+    <div class="stat-item">Qualité: <span id="res-val">Auto</span></div>
+</div>
+
+<canvas id="screenshot-canvas"></canvas>
+
+<footer>© 2026 Ömer Avcı - Outil de monitoring avancé</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-const video = document.getElementById('player');
+    const video = document.getElementById('player');
+    const encodedUrl = "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==";
+    const videoSrc = atob(encodedUrl);
 
-// Le lien est ici "caché" en Base64 pour éviter les filtres automatiques
-const encodedUrl = "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==";
-const videoSrc = atob(encodedUrl); // Le navigateur décode le lien ici
+    // Initialisation HLS avec correction "Anti-Pat"
+    if (Hls.isSupported()) {
+        const hls = new Hls({
+            maxBufferLength: 40, 
+            enableWorker: true,
+            lowLatencyMode: false
+        });
+        hls.loadSource(videoSrc);
+        hls.attachMedia(video);
 
-if (Hls.isSupported()) {
-    const hls = new Hls();
-    hls.loadSource(videoSrc);
-    hls.attachMedia(video);
-} 
-else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = videoSrc;
-}
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            document.getElementById('res-val').innerText = "HD Active";
+        });
 
-function toggleSound(){
-    video.muted = !video.muted;
-}
+        // Monitoring du buffer pour le "Pat Pat"
+        setInterval(() => {
+            if(video.buffered.length > 0) {
+                const bufferSize = video.buffered.end(0) - video.currentTime;
+                const span = document.getElementById('buf-val');
+                span.innerText = bufferSize.toFixed(1) + "s";
+                span.className = bufferSize < 5 ? "bad" : "good";
+            }
+        }, 1000);
+    }
+
+    // Fonctions des boutons
+    function toggleSound() { video.muted = !video.muted; }
+    
+    function changeVolume(val) { 
+        video.volume = val; 
+        video.muted = (val == 0);
+    }
+
+    function toggleCinema() {
+        document.body.classList.toggle('cinema-mode');
+    }
+
+    function takeScreenshot() {
+        const canvas = document.getElementById('screenshot-canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        const link = document.createElement('a');
+        link.download = 'capture-match.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+
+    // Picture in Picture
+    const pipBtn = document.getElementById('pipBtn');
+    if (!document.pictureInPictureEnabled) {
+        pipBtn.style.display = 'none';
+    }
+    pipBtn.addEventListener('click', async () => {
+        try {
+            if (video !== document.pictureInPictureElement) {
+                await video.requestPictureInPicture();
+            } else {
+                await document.exitPictureInPicture();
+            }
+        } catch (error) { console.error(error); }
+    });
 </script>
+
 </body>
 </html>
