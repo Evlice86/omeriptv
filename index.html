@@ -1,144 +1,225 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ömer Avcı | beIN Sports Pro Player</title>
+    <title>Ömer Avcı | IPTV</title>
     <style>
-        :root { --main-purple: #6a0dad; --bg-dark: #0a0a0a; }
-        body { margin:0; font-family:'Segoe UI', sans-serif; background: var(--bg-dark); color:white; text-align:center; transition: background 0.5s; }
-        header { background: var(--main-purple); padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.6); }
+        :root {
+            --accent: #a855f7; --gold: #fbbf24; --bg: #020617; 
+            --card: rgba(30, 41, 59, 0.7); --danger: #ef4444;
+        }
+
+        body {
+            margin: 0; font-family: 'Inter', sans-serif;
+            background: var(--bg); color: #f8fafc; overflow-x: hidden;
+            background-image: radial-gradient(circle at top right, #1e1b4b, transparent);
+            transition: background 0.5s;
+        }
+
+        /* --- SİNEMA MODU --- */
+        .cinema-mode { background: #000 !important; }
+        .cinema-mode header, .cinema-mode .ticker-wrapper, .cinema-mode .side-panel { opacity: 0; pointer-events: none; }
+
+        /* --- KAYAN HABER BANDI --- */
+        .ticker-wrapper {
+            background: rgba(0, 0, 0, 0.9); border-bottom: 1px solid var(--accent);
+            padding: 10px 0; overflow: hidden; white-space: nowrap;
+        }
+        .ticker-text {
+            display: inline-block; animation: scroll 35s linear infinite;
+            font-weight: bold; font-size: 0.85rem; letter-spacing: 1px;
+        }
+        .ticker-text span { margin: 0 50px; color: var(--gold); }
+        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        /* --- LAYOUT --- */
+        header { padding: 20px; text-align: center; }
+        header h1 { 
+            margin: 0; font-size: 2.2rem; 
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .main-grid {
+            display: grid; grid-template-columns: 1fr 380px;
+            gap: 20px; max-width: 1600px; margin: 0 auto; padding: 20px;
+        }
+
+        /* --- VİDEO BÖLÜMÜ --- */
+        .player-container {
+            background: var(--card); backdrop-filter: blur(15px);
+            border-radius: 24px; padding: 15px; border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+        .video-box {
+            position: relative; border-radius: 18px; overflow: hidden;
+            aspect-ratio: 16/9; background: #000; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        video { width: 100%; height: 100%; transition: 0.3s; }
+
+        /* Görüntü Filtreleri */
+        .f-vivid { filter: saturate(1.6) contrast(1.1); }
+        .f-sharp { filter: contrast(1.2) brightness(1.1); }
+        .f-warm { filter: sepia(0.2) saturate(1.4); }
+
+        /* --- KONTROL PANELİ --- */
+        .control-hub {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 10px; margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px;
+        }
+        .btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 10px 18px; border-radius: 10px; cursor: pointer;
+            font-size: 0.85rem; font-weight: 600; transition: 0.3s;
+        }
+        .btn:hover { background: var(--accent); transform: translateY(-2px); }
+        .btn-fix { background: var(--danger); }
+        .btn-gold { color: var(--gold); border-color: var(--gold); }
+
+        /* --- KANAL LİSTESİ --- */
+        .side-panel {
+            background: var(--card); backdrop-filter: blur(15px);
+            border-radius: 24px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .channel-item {
+            background: rgba(255,255,255,0.03); margin-bottom: 12px;
+            padding: 15px; border-radius: 16px; cursor: pointer;
+            border: 1px solid transparent; transition: 0.3s;
+        }
+        .channel-item:hover { background: rgba(255,255,255,0.08); }
+        .channel-item.active { border-color: var(--accent); background: rgba(168, 85, 247, 0.1); }
         
-        /* Mode Cinéma */
-        .cinema-mode { background: black !important; }
-        .cinema-mode header, .cinema-mode footer, .cinema-mode .status-panel { opacity: 0.1; }
+        .ch-name { font-weight: bold; display: block; margin-bottom: 5px; }
+        .ch-epg { font-size: 0.8rem; color: var(--gold); }
+        .ch-next { font-size: 0.75rem; color: #94a3b8; margin-top: 3px; }
 
-        .player-wrapper { max-width:950px; margin:20px auto; position: relative; }
-        .video-container { background:#000; padding:10px; border-radius:12px; box-shadow:0 0 30px rgba(106,13,173,0.4); border: 1px solid #222; }
-        video { width:100%; border-radius:8px; cursor: pointer; }
-
-        /* Contrôles Avancés */
-        .controls-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; }
-        button { padding: 10px 15px; background: var(--main-purple); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
-        button:hover { background: #8a2be2; transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
-        
-        .vol-control { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 15px; border-radius: 6px; }
-        input[type=range] { cursor: pointer; accent-color: var(--main-purple); }
-
-        .status-panel { max-width:950px; margin:15px auto; display: flex; justify-content: space-around; font-size: 0.85rem; }
-        .stat-item { background: #151515; padding: 10px 20px; border-radius: 20px; border: 1px solid #333; }
-        .good { color: #2ecc71; } .bad { color: #e74c3c; }
-
-        footer { margin-top:40px; padding:20px; color:#444; }
-        canvas { display: none; } /* Pour le screenshot */
+        @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<header id="main-header">
-    <h1>Ömer Avcı - beIN Sports</h1>
-    <p style="color:#ffd700;">Diffusion HD avec Optimisation Audio ⚡</p>
+<div class="ticker-wrapper">
+    <div class="ticker-text">
+        <span>⚽ CANLI: BEŞİKTAŞ - TRABZONSPOR DK: 65' (1-1)</span>
+        <span>🔥 ÖMER AVCI PREMIUM: TÜM KANALLAR AKTİF</span>
+        <span>📺 SIRADAKİ: ŞAMPİYONLAR LİGİ ÖZETLERİ</span>
+        <span>🏀 THY AVRUPA LİGİ: EFES 88 - 82 REAL MADRID</span>
+    </div>
+</div>
+
+<header>
+    <h1>ÖMER AVCI <span style="font-weight: 200;">IPTV</span></h1>
 </header>
 
-<div class="player-wrapper">
-    <div class="video-container">
-        <video id="player" poster="https://via.placeholder.com/1280x720/000000/FFFFFF?text=Chargement+du+Flux..." autoplay muted></video>
-    </div>
-
-    <div class="controls-grid">
-        <button onclick="toggleSound()">🔈 Muet/Son</button>
-        
-        <div class="vol-control">
-            <span>Vol:</span>
-            <input type="range" id="volumeBar" min="0" max="1" step="0.1" value="1" oninput="changeVolume(this.value)">
+<div class="main-grid">
+    <div class="left-section">
+        <div class="player-container">
+            <div class="video-box">
+                <video id="mainVideo" controls autoplay playsinline></video>
+            </div>
+            
+            <div class="control-hub">
+                <button class="btn btn-fix" onclick="fixAudio()">🛠️ SESİ DÜZELT (RESET)</button>
+                <button class="btn" onclick="toggleCinema()">🎬 SİNEMA MODU</button>
+                <button class="btn" onclick="video.requestPictureInPicture()">📺 PENCERE</button>
+                <button class="btn" onclick="takeSnap()">📸 EKRAN AL</button>
+                <button class="btn btn-gold" onclick="setFilt('f-vivid')">✨ CANLI RENK</button>
+                <button class="btn btn-gold" onclick="setFilt('f-sharp')">👁️ KESKİN</button>
+                <button class="btn" onclick="setFilt('')">NORMAL</button>
+                <button class="btn" onclick="location.reload()">🔄 YENİLE</button>
+            </div>
         </div>
+    </div>
 
-        <button onclick="toggleCinema()">🎬 Mode Cinéma</button>
-        <button onclick="takeScreenshot()">📸 Capture</button>
-        <button id="pipBtn">📺 Fenêtre flottante</button>
-        <button onclick="location.reload()" style="background:#444;">🔄 Reset</button>
+    <div class="side-panel">
+        <h3 style="margin-top:0;">PREMIUM CHANNELS</h3>
+        <div id="channelBox"></div>
     </div>
 </div>
-
-<div class="status-panel">
-    <div class="stat-item">Buffer: <span id="buf-val" class="good">0s</span></div>
-    <div class="stat-item">Stabilité: <span id="err-val" class="good">Optimale</span></div>
-    <div class="stat-item">Qualité: <span id="res-val">Auto</span></div>
-</div>
-
-<canvas id="screenshot-canvas"></canvas>
-
-<footer>© 2026 Ömer Avcı - Outil de monitoring avancé</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-    const video = document.getElementById('player');
-    const encodedUrl = "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==";
-    const videoSrc = atob(encodedUrl);
+    const video = document.getElementById('mainVideo');
+    let hls = new Hls();
 
-    // Initialisation HLS avec correction "Anti-Pat"
-    if (Hls.isSupported()) {
-        const hls = new Hls({
-            maxBufferLength: 40, 
-            enableWorker: true,
-            lowLatencyMode: false
+    // --- KOD İÇİ KANAL VE YAYIN AKIŞI VERİSİ ---
+    const kanallar = [
+        { 
+            ad: "beIN Sports 1 HD", 
+            url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==", 
+            isBase64: true,
+            simdi: "🔴 CANLI: Süper Lig Maç Günü",
+            sonra: "23:00 - Maçın Ardından"
+        },
+        { 
+            ad: "beIN Sports 2 HD", 
+            url: "https://yayin2.m3u8", 
+            isBase64: false,
+            simdi: "🎾 Tennis: Wimbledon",
+            sonra: "00:00 - Spor Haberleri"
+        }
+    ];
+
+    function init() {
+        const box = document.getElementById('channelBox');
+        kanallar.forEach((k, i) => {
+            const div = document.createElement('div');
+            div.className = 'channel-item' + (i === 0 ? ' active' : '');
+            div.innerHTML = `
+                <span class="ch-name">${k.ad}</span>
+                <div class="ch-epg">${k.simdi}</div>
+                <div class="ch-next">Sıradaki: ${k.sonra}</div>
+            `;
+            div.onclick = () => play(k.url, k.isBase64, div);
+            box.appendChild(div);
         });
-        hls.loadSource(videoSrc);
-        hls.attachMedia(video);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            document.getElementById('res-val').innerText = "HD Active";
-        });
-
-        // Monitoring du buffer pour le "Pat Pat"
-        setInterval(() => {
-            if(video.buffered.length > 0) {
-                const bufferSize = video.buffered.end(0) - video.currentTime;
-                const span = document.getElementById('buf-val');
-                span.innerText = bufferSize.toFixed(1) + "s";
-                span.className = bufferSize < 5 ? "bad" : "good";
-            }
-        }, 1000);
     }
 
-    // Fonctions des boutons
-    function toggleSound() { video.muted = !video.muted; }
-    
-    function changeVolume(val) { 
-        video.volume = val; 
-        video.muted = (val == 0);
+    function play(url, isBase64, el) {
+        document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        const src = isBase64 ? atob(url) : url;
+
+        if (hls) hls.destroy();
+        if (Hls.isSupported()) {
+            hls = new Hls({ 
+                maxBufferLength: 45, 
+                lowLatencyMode: false // Sesi stabilize etmek için
+            });
+            hls.loadSource(src);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+        }
     }
 
-    function toggleCinema() {
-        document.body.classList.toggle('cinema-mode');
+    // --- ÖZELLİK FONKSİYONLARI ---
+    function fixAudio() {
+        const time = video.currentTime;
+        hls.stopLoad();
+        hls.startLoad();
+        video.currentTime = time - 1; // Sesi tekrar senkronlar
     }
 
-    function takeScreenshot() {
-        const canvas = document.getElementById('screenshot-canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+    function toggleCinema() { document.body.classList.toggle('cinema-mode'); }
+
+    function setFilt(cls) {
+        video.className = cls;
+    }
+
+    function takeSnap() {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
-        const link = document.createElement('a');
-        link.download = 'capture-match.png';
-        link.href = canvas.toDataURL();
-        link.click();
+        const a = document.createElement('a');
+        a.download = 'omer-avci-capture.png';
+        a.href = canvas.toDataURL();
+        a.click();
     }
 
-    // Picture in Picture
-    const pipBtn = document.getElementById('pipBtn');
-    if (!document.pictureInPictureEnabled) {
-        pipBtn.style.display = 'none';
-    }
-    pipBtn.addEventListener('click', async () => {
-        try {
-            if (video !== document.pictureInPictureElement) {
-                await video.requestPictureInPicture();
-            } else {
-                await document.exitPictureInPicture();
-            }
-        } catch (error) { console.error(error); }
-    });
+    window.onload = () => {
+        init();
+        play(kanallar[0].url, kanallar[0].isBase64, document.querySelector('.channel-item'));
+    };
 </script>
 
 </body>
