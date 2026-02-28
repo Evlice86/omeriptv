@@ -142,7 +142,6 @@
     const video = document.getElementById('mainVideo');
     let hls = new Hls();
 
-    // --- KOD İÇİ KANAL VE YAYIN AKIŞI VERİSİ ---
     const kanallar = [
         { 
             ad: "beIN Sports 1 HD", 
@@ -155,20 +154,21 @@
             ad: "beIN Sports 3 HD", 
             url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTMvcGxheWxpc3QubTN1OA==", 
             isBase64: true,
-            simdi: "🔴 CANLI: Süper Lig Maç Günü",
-            sonra: "23:00 - Maçın Ardından"
+            simdi: "🔴 CANLI: beIN Sports 3",
+            sonra: "23:00 - Spor Programı"
         },
         { 
             ad: "TRT 1", 
-            url: "https://tv-trt1.medya.trt.com.tr/master.m3u8?hls=1[span_0](end_span)", 
+            url: "https://tv-trt1.medya.trt.com.tr/master.m3u8?hls=1", 
             isBase64: false,
-            simdi: "Turk Takimlarin avrupa maçlari",
+            simdi: "Türk Takımlarının Avrupa Maçları",
             sonra: "00:00 - Spor Haberleri"
         }
     ];
 
     function init() {
         const box = document.getElementById('channelBox');
+        box.innerHTML = ''; 
         kanallar.forEach((k, i) => {
             const div = document.createElement('div');
             div.className = 'channel-item' + (i === 0 ? ' active' : '');
@@ -184,27 +184,33 @@
 
     function play(url, isBase64, el) {
         document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
+        if(el) el.classList.add('active');
+        
         const src = isBase64 ? atob(url) : url;
 
-        if (hls) hls.destroy();
-        if (Hls.isSupported()) {
+        if (hls) {
+            hls.destroy();
             hls = new Hls({ 
                 maxBufferLength: 45, 
-                lowLatencyMode: false // Sesi stabilize etmek için
+                lowLatencyMode: false 
             });
+        }
+        
+        if (Hls.isSupported()) {
             hls.loadSource(src);
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = src;
+            video.addEventListener('loadedmetadata', () => video.play());
         }
     }
 
-    // --- ÖZELLİK FONKSİYONLARI ---
     function fixAudio() {
         const time = video.currentTime;
         hls.stopLoad();
         hls.startLoad();
-        video.currentTime = time - 1; // Sesi tekrar senkronlar
+        video.currentTime = time - 0.5;
     }
 
     function toggleCinema() { document.body.classList.toggle('cinema-mode'); }
@@ -231,6 +237,4 @@
 
 </body>
 </html>
-
-
 
