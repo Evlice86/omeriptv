@@ -3,138 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ömer Avcı | IPTV</title>
+    <title>Ömer Avcı | IPTV Pro Dashboard</title>
     <style>
         :root {
-            --accent: #a855f7; --gold: #fbbf24; --bg: #020617; 
-            --card: rgba(30, 41, 59, 0.7); --danger: #ef4444;
+            --accent: #a855f7;
+            --bg: #020617; 
+            --card: rgba(15, 23, 42, 0.95);
+            --transition: all 0.3s ease;
         }
 
         body {
             margin: 0; font-family: 'Inter', sans-serif;
             background: var(--bg); color: #f8fafc; overflow-x: hidden;
-            background-image: radial-gradient(circle at top right, #1e1b4b, transparent);
-            transition: background 0.5s;
         }
 
-        /* --- SİNEMA MODU --- */
-        .cinema-mode { background: #000 !important; }
-        .cinema-mode header, .cinema-mode .ticker-wrapper, .cinema-mode .side-panel { opacity: 0; pointer-events: none; }
-
-        /* --- KAYAN HABER BANDI --- */
-        .ticker-wrapper {
-            background: rgba(0, 0, 0, 0.9); border-bottom: 1px solid var(--accent);
-            padding: 10px 0; overflow: hidden; white-space: nowrap;
+        /* --- KAYAN ÜST BAND --- */
+        .ticker-wrap {
+            width: 100%; overflow: hidden; background: #000;
+            border-bottom: 1px solid var(--accent); height: 40px;
+            display: flex; align-items: center;
         }
-        .ticker-text {
-            display: inline-block; animation: scroll 35s linear infinite;
-            font-weight: bold; font-size: 0.85rem; letter-spacing: 1px;
+        .ticker-move {
+            white-space: nowrap; display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-weight: bold; font-size: 0.9rem; color: #fff;
         }
-        .ticker-text span { margin: 0 50px; color: var(--gold); }
-        @keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-
-        /* --- LAYOUT --- */
-        header { padding: 20px; text-align: center; }
-        header h1 { 
-            margin: 0; font-size: 2.2rem; 
-            background: linear-gradient(to right, #fff, var(--accent));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
 
-        .main-grid {
-            display: grid; grid-template-columns: 1fr 380px;
-            gap: 20px; max-width: 1600px; margin: 0 auto; padding: 20px;
+        /* --- HEADER & MENU --- */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+            position: relative; z-index: 1000;
         }
+        .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -1px; }
+        .logo span { color: var(--accent); }
+        .menu-icon { font-size: 30px; cursor: pointer; color: var(--accent); }
+        
+        .dropdown-menu {
+            position: absolute; top: 60px; right: 20px; width: 240px;
+            background: #0f172a; border: 2px solid var(--accent);
+            border-radius: 15px; display: none; z-index: 9999;
+            padding: 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+        }
+        .dropdown-menu.show { display: block; }
 
-        /* --- VİDEO BÖLÜMÜ --- */
-        .player-container {
-            background: var(--card); backdrop-filter: blur(15px);
-            border-radius: 24px; padding: 15px; border: 1px solid rgba(168, 85, 247, 0.2);
+        .menu-item { 
+            padding: 12px; cursor: pointer; border-radius: 10px; 
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: 600; transition: var(--transition);
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.05); color: var(--accent); }
+
+        .color-palette {
+            display: none; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            padding: 10px; border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .color-palette.show { display: grid; }
+        .color-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); }
+
+        /* --- PLAYER & CONTROLS --- */
+        .container { max-width: 1000px; margin: 0 auto; padding: 15px; }
+        .player-wrapper {
+            background: var(--card); border-radius: 25px; padding: 12px;
+            border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
         .video-box {
             position: relative; border-radius: 18px; overflow: hidden;
-            aspect-ratio: 16/9; background: #000; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            aspect-ratio: 16/9; background: #000;
         }
-        video { width: 100%; height: 100%; transition: 0.3s; }
-
-        /* Görüntü Filtreleri */
+        video { width: 100%; height: 100%; transition: filter 0.4s; }
         .f-vivid { filter: saturate(1.6) contrast(1.1); }
-        .f-sharp { filter: contrast(1.2) brightness(1.1); }
-        .f-warm { filter: sepia(0.2) saturate(1.4); }
+        .f-sharp { filter: contrast(1.3) brightness(1.1); }
 
-        /* --- KONTROL PANELİ --- */
-        .control-hub {
-            display: flex; flex-wrap: wrap; justify-content: center;
-            gap: 10px; margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px;
+        /* --- GÜNCELLENEN 4'LÜ BUTON ALANI (Fotoğraftaki Tasarım) --- */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
         }
+        .grid-btn {
+            background: #1e293b; /* Fotoğraftaki lacivert/gri arka plan */
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: #f8fafc;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .grid-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); color: var(--accent); }
+        .grid-btn .icon { font-size: 1.3rem; }
+
+        .filter-panel { 
+            display: none; gap: 10px; padding: 15px; 
+            background: rgba(255,255,255,0.03); border-radius: 15px; margin-top: 10px;
+        }
+        .filter-panel.show { display: flex; }
         .btn {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 10px 18px; border-radius: 10px; cursor: pointer;
-            font-size: 0.85rem; font-weight: 600; transition: 0.3s;
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 10px 18px; border-radius: 12px; cursor: pointer;
+            font-size: 0.85rem; font-weight: bold; transition: var(--transition);
         }
-        .btn:hover { background: var(--accent); transform: translateY(-2px); }
-        .btn-fix { background: var(--danger); }
-        .btn-gold { color: var(--gold); border-color: var(--gold); }
+        .btn:hover { background: var(--accent); }
 
         /* --- KANAL LİSTESİ --- */
-        .side-panel {
-            background: var(--card); backdrop-filter: blur(15px);
-            border-radius: 24px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.05);
+        .list-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; padding: 0 10px;
         }
+        .search-bar {
+            width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--accent);
+            color: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; box-sizing: border-box;
+            outline: none; transition: var(--transition);
+        }
+        .search-bar:focus { box-shadow: 0 0 15px var(--accent); }
+
+        .channel-list { display: flex; flex-direction: column; gap: 10px; }
         .channel-item {
-            background: rgba(255,255,255,0.03); margin-bottom: 12px;
-            padding: 15px; border-radius: 16px; cursor: pointer;
-            border: 1px solid transparent; transition: 0.3s;
+            background: rgba(255,255,255,0.03); padding: 12px 18px; border-radius: 15px;
+            display: flex; align-items: center; gap: 15px; cursor: pointer; 
+            border: 1px solid transparent; transition: var(--transition);
         }
-        .channel-item:hover { background: rgba(255,255,255,0.08); }
+        .channel-item:hover { background: rgba(255,255,255,0.06); }
         .channel-item.active { border-color: var(--accent); background: rgba(168, 85, 247, 0.1); }
         
-        .ch-name { font-weight: bold; display: block; margin-bottom: 5px; }
-        .ch-epg { font-size: 0.8rem; color: var(--gold); }
-        .ch-next { font-size: 0.75rem; color: #94a3b8; margin-top: 3px; }
+        .ch-logo { 
+            width: 60px; height: 40px; 
+            object-fit: contain; background: transparent; flex-shrink: 0; 
+        }
+        
+        .ch-name { font-size: 0.95rem; font-weight: bold; flex-grow: 1; }
+        .live-dot { height: 8px; width: 8px; background: #ef4444; border-radius: 50%; animation: blink 1s infinite; }
+        
+        .stats { font-size: 0.8rem; color: #94a3b8; font-weight: bold; }
 
-        @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
+        @keyframes blink { 50% { opacity: 0.2; } }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div class="ticker-wrapper">
-    <div class="ticker-text">
-        <span>⚽ CANLI: BEŞİKTAŞ - TRABZONSPOR DK: 65' (1-1)</span>
-        <span>🔥 ÖMER AVCI PREMIUM: TÜM KANALLAR AKTİF</span>
-        <span>📺 SIRADAKİ: ŞAMPİYONLAR LİGİ ÖZETLERİ</span>
-        <span>🏀 THY AVRUPA LİGİ: EFES 88 - 82 REAL MADRID</span>
+<div class="ticker-wrap">
+    <div class="ticker-move">
+        Bayram tarafından yapılmıştır, Ömer Avcı için, iyi seyirler ——— Bayram tarafından yapılmıştır, Ömer Avcı için, iyi seyirler ——— Her gün güncel kanallar!
     </div>
 </div>
 
 <header>
-    <h1>ÖMER AVCI <span style="font-weight: 200;">IPTV</span></h1>
+    <div class="logo">ÖMER AVCI <span>IPTV</span></div>
+    <div class="menu-icon" id="menuToggle">☰</div>
+    <div class="dropdown-menu" id="dropdown">
+        <div class="menu-item" id="colorBtn">🎨 Tema Rengi <span>▼</span></div>
+        <div class="color-palette" id="palette">
+            <div class="color-opt" style="background:#a855f7" onclick="setTheme('#a855f7')"></div>
+            <div class="color-opt" style="background:#3b82f6" onclick="setTheme('#3b82f6')"></div>
+            <div class="color-opt" style="background:#ef4444" onclick="setTheme('#ef4444')"></div>
+            <div class="color-opt" style="background:#10b981" onclick="setTheme('#10b981')"></div>
+        </div>
+        <div class="menu-item" onclick="location.reload()">🔄 Yayını Yenile</div>
+        <div class="menu-item" onclick="alert('Ömer Avcı Özel Dashboard v2.0')">ℹ️ Hakkında</div>
+    </div>
 </header>
 
-<div class="main-grid">
-    <div class="left-section">
-        <div class="player-container">
-            <div class="video-box">
-                <video id="mainVideo" controls autoplay playsinline></video>
+<div class="container">
+    <div class="player-wrapper">
+        <div class="video-box"><video id="mainVideo" controls autoplay playsinline></video></div>
+        
+        <div class="controls-grid">
+            <div class="grid-btn" onclick="toggleFilters()">
+                <span class="icon">✨</span>
+                <span>Görüntü<br>Modu</span>
             </div>
-            
-            <div class="control-hub">
-                <button class="btn btn-fix" onclick="fixAudio()">🛠️ SESİ DÜZELT (RESET)</button>
-                <button class="btn" onclick="toggleCinema()">🎬 SİNEMA MODU</button>
-                <button class="btn" onclick="video.requestPictureInPicture()">📺 PENCERE</button>
-                <button class="btn" onclick="takeSnap()">📸 EKRAN AL</button>
-                <button class="btn btn-gold" onclick="setFilt('f-vivid')">✨ CANLI RENK</button>
-                <button class="btn btn-gold" onclick="setFilt('f-sharp')">👁️ KESKİN</button>
-                <button class="btn" onclick="setFilt('')">NORMAL</button>
-                <button class="btn" onclick="location.reload()">🔄 YENİLE</button>
+            <div class="grid-btn" onclick="video.requestPictureInPicture()">
+                <span class="icon">📺</span>
+                <span>Pencere</span>
             </div>
+            <div class="grid-btn" onclick="takeSnap()">
+                <span class="icon">📸</span>
+                <span>Ekran<br>Al</span>
+            </div>
+            <div class="grid-btn" onclick="location.reload()">
+                <span class="icon">🛠️</span>
+                <span>Kurtar</span>
+            </div>
+        </div>
+
+        <div class="filter-panel" id="filterPanel">
+            <button class="btn" onclick="setFilt('')">Normal</button>
+            <button class="btn" onclick="setFilt('f-vivid')">Canlı Renk</button>
+            <button class="btn" onclick="setFilt('f-sharp')">Keskinlik</button>
         </div>
     </div>
 
-    <div class="side-panel">
-        <h3 style="margin-top:0;">PREMIUM CHANNELS</h3>
-        <div id="channelBox"></div>
+    <div class="list-header">
+        <span class="stats" id="chanCount">Yükleniyor...</span>
+        <span class="stats">Sistem Aktif 🟢</span>
     </div>
+    <input type="text" class="search-bar" placeholder="Kanal ismini buraya yazın..." onkeyup="filterChannels(this.value)">
+    <div class="channel-list" id="channelBox"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -143,98 +224,83 @@
     let hls = new Hls();
 
     const kanallar = [
-        { 
-            ad: "beIN Sports 1 HD", 
-            url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==", 
-            isBase64: true,
-            simdi: "🔴 CANLI: Süper Lig Maç Günü",
-            sonra: "23:00 - Maçın Ardından"
-        },
-        { 
-            ad: "beIN Sports 3 HD", 
-            url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTMvcGxheWxpc3QubTN1OA==", 
-            isBase64: true,
-            simdi: "🔴 CANLI: beIN Sports 3",
-            sonra: "23:00 - Spor Programı"
-        },
-        { 
-            ad: "TRT 1", 
-            url: "https://tv-trt1.medya.trt.com.tr/master.m3u8?hls=1", 
-            isBase64: false,
-            simdi: "Türk Takımlarının Avrupa Maçları",
-            sonra: "00:00 - Spor Haberleri"
-        }
+        { ad: "beIN Sports 1 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
+        { ad: "beIN Sports 2 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
+        { ad: "beIN Sports 3 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTMvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
+        { ad: "beIN Sports 4 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTQvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
+        { ad: "beIN Sports 5 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTUvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
+        { ad: "beIN Sports Max 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
+        { ad: "beIN Sports Max 2", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTMvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
+        { ad: "Tivibu Spor 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTEvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Tivibu_logo.png" },
+        { ad: "Tivibu Spor 2", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTIvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Tivibu_logo.png" },
+        { ad: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master.m3u8?hls=1", logo: "https://sm.mashable.com/t/mashable_tr/photo/default/trt-1-neden-acilmiyor-cozumu-nedir_ep7p.2496.png" }
     ];
 
     function init() {
         const box = document.getElementById('channelBox');
-        box.innerHTML = ''; 
+        document.getElementById('chanCount').innerText = `${kanallar.length} Kanal Mevcut`;
+        
         kanallar.forEach((k, i) => {
             const div = document.createElement('div');
             div.className = 'channel-item' + (i === 0 ? ' active' : '');
             div.innerHTML = `
+                <img src="${k.logo}" class="ch-logo" onerror="this.src='https://via.placeholder.com/60x40?text=TV'">
                 <span class="ch-name">${k.ad}</span>
-                <div class="ch-epg">${k.simdi}</div>
-                <div class="ch-next">Sıradaki: ${k.sonra}</div>
-            `;
-            div.onclick = () => play(k.url, k.isBase64, div);
+                <span class="live-dot"></span>`;
+            div.onclick = () => play(k.url, div);
             box.appendChild(div);
         });
+        play(kanallar[0].url, document.querySelector('.channel-item'));
     }
 
-    function play(url, isBase64, el) {
+    function play(url, el) {
         document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('active'));
         if(el) el.classList.add('active');
-        
-        const src = isBase64 ? atob(url) : url;
-
-        if (hls) {
-            hls.destroy();
-            hls = new Hls({ 
-                maxBufferLength: 45, 
-                lowLatencyMode: false 
-            });
-        }
-        
+        const src = url.includes('https') ? url : atob(url);
+        if (hls) hls.destroy();
         if (Hls.isSupported()) {
-            hls.loadSource(src);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = src;
-            video.addEventListener('loadedmetadata', () => video.play());
+            hls = new Hls(); hls.loadSource(src); hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
         }
     }
 
-    function fixAudio() {
-        const time = video.currentTime;
-        hls.stopLoad();
-        hls.startLoad();
-        video.currentTime = time - 0.5;
-    }
+    // Menü Mantığı
+    document.getElementById('menuToggle').onclick = (e) => {
+        e.stopPropagation();
+        document.getElementById('dropdown').classList.toggle('show');
+    };
+    document.getElementById('colorBtn').onclick = (e) => {
+        e.stopPropagation();
+        document.getElementById('palette').classList.toggle('show');
+    };
+    document.body.onclick = () => {
+        document.getElementById('dropdown').classList.remove('show');
+        document.getElementById('palette').classList.remove('show');
+    };
+    document.getElementById('dropdown').onclick = (e) => e.stopPropagation();
 
-    function toggleCinema() { document.body.classList.toggle('cinema-mode'); }
-
-    function setFilt(cls) {
-        video.className = cls;
+    function setTheme(c) { document.documentElement.style.setProperty('--accent', c); }
+    function setFilt(c) { video.className = c; }
+    function toggleFilters() { document.getElementById('filterPanel').classList.toggle('show'); }
+    
+    function filterChannels(q) {
+        let count = 0;
+        document.querySelectorAll('.channel-item').forEach(item => {
+            const match = item.innerText.toLowerCase().includes(q.toLowerCase());
+            item.style.display = match ? 'flex' : 'none';
+            if(match) count++;
+        });
+        document.getElementById('chanCount').innerText = `${count} Kanal Bulundu`;
     }
 
     function takeSnap() {
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
-        const a = document.createElement('a');
-        a.download = 'omer-avci-capture.png';
-        a.href = canvas.toDataURL();
-        a.click();
+        const a = document.createElement('a'); a.download = 'ip-tv-ss.png'; a.href = canvas.toDataURL(); a.click();
     }
 
-    window.onload = () => {
-        init();
-        play(kanallar[0].url, kanallar[0].isBase64, document.querySelector('.channel-item'));
-    };
+    window.onload = init;
 </script>
-
 </body>
 </html>
-
