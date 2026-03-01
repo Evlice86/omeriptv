@@ -78,16 +78,14 @@
             aspect-ratio: 16/9; background: #000; width: 100%;
         }
 
-        /* FULL EKRAN DOLDURMA AYARLARI */
         video { 
             width: 100% !important; 
             height: 100% !important; 
             transition: filter 0.4s; 
-            object-fit: fill; /* Varsayılanı tüm ekranı doldur (yay) yaptık */
+            object-fit: fill;
             display: block;
         }
         
-        /* Tam ekran modundayken videonun kutuyu tam kaplaması için */
         .video-box:fullscreen video {
             width: 100vw;
             height: 100vh;
@@ -96,7 +94,15 @@
         .f-vivid { filter: saturate(1.6) contrast(1.1); }
         .f-sharp { filter: contrast(1.3) brightness(1.1); }
 
-        /* --- VİDEO ÜZERİNDEKİ BUTONLAR --- */
+        /* --- ŞİMDİ OYNATILIYOR STİLİ --- */
+        .now-playing {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 15px; background: rgba(255,255,255,0.03);
+            border-radius: 12px; margin-top: 10px; border-left: 3px solid var(--accent);
+        }
+        #activeLogo { width: 45px; height: 30px; object-fit: contain; }
+        #activeName { font-weight: 700; font-size: 0.95rem; color: #fff; }
+
         .video-overlay-controls {
             position: absolute; top: 10px; right: 10px;
             display: flex; gap: 8px; z-index: 10;
@@ -201,6 +207,11 @@
             </div>
             <video id="mainVideo" controls autoplay playsinline></video>
         </div>
+
+        <div id="nowPlaying" class="now-playing">
+            <img id="activeLogo" src="" alt="">
+            <span id="activeName">Yükleniyor...</span>
+        </div>
         
         <div class="controls-grid">
             <div class="grid-btn" onclick="toggleFilters()">
@@ -240,19 +251,20 @@
 <script>
     const video = document.getElementById('mainVideo');
     const container = document.getElementById('videoContainer');
+    const activeLogo = document.getElementById('activeLogo');
+    const activeName = document.getElementById('activeName');
     let hls = new Hls();
 
     const kanallar = [
-        { ad: "beIN Sports 1 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
-        { ad: "beIN Sports 2 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
-        { ad: "beIN Sports 3 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTMvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
-        { ad: "beIN Sports 4 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTQvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
-        { ad: "beIN Sports 5 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTUvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
-        { ad: "beIN Sports Max 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
-        { ad: "beIN Sports Max 2", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTMvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/BeIN_Sports_logo.svg/200px-BeIN_Sports_logo.svg.png" },
-        { ad: "Tivibu Spor 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTEvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Tivibu_logo.png" },
-        { ad: "Tivibu Spor 2", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTIvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Tivibu_logo.png" },
-        { ad: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master.m3u8?hls=1", logo: "https://sm.mashable.com/t/mashable_tr/photo/default/trt-1-neden-acilmiyor-cozumu-nedir_ep7p.2496.png" }
+        { ad: "beIN Sports 1 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==", logo: "https://media.info/l/o/6/6589.1491349382.png" },
+        { ad: "beIN Sports 2 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://media.info/l/o/6/6594.1491352241.png" },
+        { ad: "beIN Sports 3 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTMvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/BeIn_Sports_3_Australia.png" },
+        { ad: "beIN Sports 4 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTQvcGxheWxpc3QubTN1OA==", logo: "https://static.wikia.nocookie.net/logopedia/images/b/bc/BS4.svg/revision/latest/scale-to-width-down/250?cb=20200107204039" },
+        { ad: "beIN Sports 5 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTUvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/93010o1631279441.png" },
+        { ad: "beIN Sports Max 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/9/9c/The_new_logo_of_beIN_MAX_1_at_2017.png" },
+        { ad: "Tivibu Spor 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTEvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/qadnsi1642604437.png" },
+        { ad: "Tivibu Spor 2", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTIvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/kuasdm1642604455.png" },
+        { ad: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master.m3u8?hls=1", logo: "https://upload.wikimedia.org/wikipedia/commons/0/04/TRT_1_HD_kurumsal_logo_%282012-2021%29.png" }
     ];
 
     function init() {
@@ -266,15 +278,21 @@
                 <img src="${k.logo}" class="ch-logo" onerror="this.src='https://via.placeholder.com/60x40?text=TV'">
                 <span class="ch-name">${k.ad}</span>
                 <span class="live-dot"></span>`;
-            div.onclick = () => play(k.url, div);
+            div.onclick = () => play(k.url, div, k.ad, k.logo);
             box.appendChild(div);
         });
-        play(kanallar[0].url, document.querySelector('.channel-item'));
+        // İlk kanalı başlatırken isim ve logoyu gönderiyoruz
+        play(kanallar[0].url, document.querySelector('.channel-item'), kanallar[0].ad, kanallar[0].logo);
     }
 
-    function play(url, el) {
+    function play(url, el, name, logo) {
         document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('active'));
         if(el) el.classList.add('active');
+        
+        // Üst Bilgileri Güncelle
+        if(name) activeName.innerText = name;
+        if(logo) activeLogo.src = logo;
+
         const src = url.includes('https') ? url : atob(url);
         if (hls) hls.destroy();
         if (Hls.isSupported()) {
@@ -283,7 +301,6 @@
         }
     }
 
-    // BOYUT DEĞİŞTİRME - EKRANI TAM DOLDURMA (STRETCH) ÖNCELİKLİ
     const fitModes = [
         { mode: 'fill', label: 'Tam Doldur (Yay)' },
         { mode: 'contain', label: 'Sığdır (Orantılı)' },
@@ -295,16 +312,12 @@
         video.style.objectFit = fitModes[currentFit].mode;
     }
 
-    // TAM EKRAN VE YATAY MOD
     async function toggleFullScreen() {
         if (!document.fullscreenElement) {
             try {
                 if (container.requestFullscreen) await container.requestFullscreen();
                 else if (container.webkitRequestFullscreen) await container.webkitRequestFullscreen();
-                
-                // Tam ekranda videoyu tam yaymak için otomatik 'fill' yapalım
                 video.style.objectFit = 'fill';
-                
                 if (screen.orientation && screen.orientation.lock) {
                     await screen.orientation.lock('landscape').catch(() => {});
                 }
@@ -314,7 +327,6 @@
         }
     }
 
-    // Menü Ayarları
     document.getElementById('menuToggle').onclick = (e) => {
         e.stopPropagation();
         document.getElementById('dropdown').classList.toggle('show');
