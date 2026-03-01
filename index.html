@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ömer Avcı | IPTV Pro Dashboard</title>
     <style>
         :root {
@@ -15,18 +15,19 @@
         body {
             margin: 0; font-family: 'Inter', sans-serif;
             background: var(--bg); color: #f8fafc; overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* --- KAYAN ÜST BAND --- */
         .ticker-wrap {
             width: 100%; overflow: hidden; background: #000;
-            border-bottom: 1px solid var(--accent); height: 40px;
+            border-bottom: 1px solid var(--accent); height: 35px;
             display: flex; align-items: center;
         }
         .ticker-move {
             white-space: nowrap; display: inline-block;
             animation: marquee 20s linear infinite;
-            font-weight: bold; font-size: 0.9rem; color: #fff;
+            font-weight: bold; font-size: 0.85rem; color: #fff;
         }
         @keyframes marquee {
             0% { transform: translateX(100%); }
@@ -36,123 +37,134 @@
         /* --- HEADER & MENU --- */
         header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+            padding: 10px 15px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
             position: relative; z-index: 1000;
         }
-        .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -1px; }
+        .logo { font-size: 1.2rem; font-weight: 800; letter-spacing: -1px; }
         .logo span { color: var(--accent); }
-        .menu-icon { font-size: 30px; cursor: pointer; color: var(--accent); }
+        .menu-icon { font-size: 24px; cursor: pointer; color: var(--accent); }
         
         .dropdown-menu {
-            position: absolute; top: 60px; right: 20px; width: 240px;
+            position: absolute; top: 50px; right: 15px; width: 220px;
             background: #0f172a; border: 2px solid var(--accent);
             border-radius: 15px; display: none; z-index: 9999;
-            padding: 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            padding: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.8);
         }
         .dropdown-menu.show { display: block; }
 
         .menu-item { 
-            padding: 12px; cursor: pointer; border-radius: 10px; 
+            padding: 10px; cursor: pointer; border-radius: 10px; 
             display: flex; justify-content: space-between; align-items: center;
-            font-weight: 600; transition: var(--transition);
+            font-weight: 600; font-size: 0.9rem; transition: var(--transition);
         }
         .menu-item:hover { background: rgba(255,255,255,0.05); color: var(--accent); }
 
         .color-palette {
-            display: none; grid-template-columns: repeat(4, 1fr); gap: 10px;
-            padding: 10px; border-top: 1px solid rgba(255,255,255,0.1);
+            display: none; grid-template-columns: repeat(4, 1fr); gap: 8px;
+            padding: 8px; border-top: 1px solid rgba(255,255,255,0.1);
         }
         .color-palette.show { display: grid; }
-        .color-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); }
+        .color-opt { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); }
 
         /* --- PLAYER & CONTROLS --- */
-        .container { max-width: 1000px; margin: 0 auto; padding: 15px; }
+        .container { max-width: 850px; margin: 0 auto; padding: 10px; }
         .player-wrapper {
-            background: var(--card); border-radius: 25px; padding: 12px;
-            border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;
+            background: var(--card); border-radius: 20px; padding: 8px;
+            border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
         .video-box {
-            position: relative; border-radius: 18px; overflow: hidden;
-            aspect-ratio: 16/9; background: #000;
+            position: relative; border-radius: 15px; overflow: hidden;
+            aspect-ratio: 16/9; background: #000; width: 100%;
         }
-        video { width: 100%; height: 100%; transition: filter 0.4s; }
+
+        /* FULL EKRAN DOLDURMA AYARLARI */
+        video { 
+            width: 100% !important; 
+            height: 100% !important; 
+            transition: filter 0.4s; 
+            object-fit: fill; /* Varsayılanı tüm ekranı doldur (yay) yaptık */
+            display: block;
+        }
+        
+        /* Tam ekran modundayken videonun kutuyu tam kaplaması için */
+        .video-box:fullscreen video {
+            width: 100vw;
+            height: 100vh;
+        }
+
         .f-vivid { filter: saturate(1.6) contrast(1.1); }
         .f-sharp { filter: contrast(1.3) brightness(1.1); }
 
-        /* --- GÜNCELLENEN 4'LÜ BUTON ALANI (Fotoğraftaki Tasarım) --- */
+        /* --- VİDEO ÜZERİNDEKİ BUTONLAR --- */
+        .video-overlay-controls {
+            position: absolute; top: 10px; right: 10px;
+            display: flex; gap: 8px; z-index: 10;
+        }
+        .ov-btn {
+            background: rgba(0, 0, 0, 0.6); border: 1px solid var(--accent);
+            color: white; width: 38px; height: 38px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; backdrop-filter: blur(5px); font-size: 1.1rem;
+            transition: 0.2s;
+        }
+        .ov-btn:hover { background: var(--accent); transform: scale(1.1); }
+
+        /* --- ALT KONTROL PANELİ --- */
         .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 15px;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px; margin-top: 10px;
         }
         .grid-btn {
-            background: #1e293b; /* Fotoğraftaki lacivert/gri arka plan */
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 12px 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: var(--transition);
-            color: #f8fafc;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-align: center;
-            line-height: 1.2;
+            background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px; padding: 10px 2px;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 4px; cursor: pointer;
+            transition: var(--transition); color: #f8fafc;
+            font-size: 0.75rem; font-weight: 600; text-align: center;
         }
         .grid-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); color: var(--accent); }
-        .grid-btn .icon { font-size: 1.3rem; }
+        .grid-btn .icon { font-size: 1.1rem; }
 
         .filter-panel { 
-            display: none; gap: 10px; padding: 15px; 
-            background: rgba(255,255,255,0.03); border-radius: 15px; margin-top: 10px;
+            display: none; gap: 8px; padding: 12px; 
+            background: rgba(255,255,255,0.03); border-radius: 12px; margin-top: 10px;
         }
         .filter-panel.show { display: flex; }
         .btn {
             background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 10px 18px; border-radius: 12px; cursor: pointer;
-            font-size: 0.85rem; font-weight: bold; transition: var(--transition);
+            color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer;
+            font-size: 0.8rem; font-weight: bold; transition: var(--transition);
         }
         .btn:hover { background: var(--accent); }
 
         /* --- KANAL LİSTESİ --- */
         .list-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; padding: 0 10px;
+            margin-bottom: 10px; padding: 0 5px;
         }
         .search-bar {
-            width: 100%; background: rgba(255,255,255,0.03); border: 2px solid var(--accent);
-            color: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; box-sizing: border-box;
-            outline: none; transition: var(--transition);
+            width: 100%; background: rgba(255,255,255,0.03); border: 1.5px solid var(--accent);
+            color: white; padding: 12px; border-radius: 12px; margin-bottom: 10px; box-sizing: border-box;
+            outline: none; transition: var(--transition); font-size: 0.9rem;
         }
-        .search-bar:focus { box-shadow: 0 0 15px var(--accent); }
 
-        .channel-list { display: flex; flex-direction: column; gap: 10px; }
+        .channel-list { display: flex; flex-direction: column; gap: 8px; }
         .channel-item {
-            background: rgba(255,255,255,0.03); padding: 12px 18px; border-radius: 15px;
-            display: flex; align-items: center; gap: 15px; cursor: pointer; 
+            background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 12px;
+            display: flex; align-items: center; gap: 12px; cursor: pointer; 
             border: 1px solid transparent; transition: var(--transition);
         }
         .channel-item:hover { background: rgba(255,255,255,0.06); }
         .channel-item.active { border-color: var(--accent); background: rgba(168, 85, 247, 0.1); }
         
-        .ch-logo { 
-            width: 60px; height: 40px; 
-            object-fit: contain; background: transparent; flex-shrink: 0; 
-        }
-        
-        .ch-name { font-size: 0.95rem; font-weight: bold; flex-grow: 1; }
-        .live-dot { height: 8px; width: 8px; background: #ef4444; border-radius: 50%; animation: blink 1s infinite; }
-        
-        .stats { font-size: 0.8rem; color: #94a3b8; font-weight: bold; }
+        .ch-logo { width: 50px; height: 35px; object-fit: contain; flex-shrink: 0; }
+        .ch-name { font-size: 0.9rem; font-weight: bold; flex-grow: 1; }
+        .live-dot { height: 6px; width: 6px; background: #ef4444; border-radius: 50%; animation: blink 1s infinite; }
+        .stats { font-size: 0.75rem; color: #94a3b8; font-weight: bold; }
 
         @keyframes blink { 50% { opacity: 0.2; } }
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
     </style>
 </head>
@@ -182,7 +194,13 @@
 
 <div class="container">
     <div class="player-wrapper">
-        <div class="video-box"><video id="mainVideo" controls autoplay playsinline></video></div>
+        <div class="video-box" id="videoContainer">
+            <div class="video-overlay-controls">
+                <div class="ov-btn" title="Görüntü Modu Değiştir" onclick="toggleFit()">📏</div>
+                <div class="ov-btn" title="Tam Ekran (Yatay)" onclick="toggleFullScreen()">🔲</div>
+            </div>
+            <video id="mainVideo" controls autoplay playsinline></video>
+        </div>
         
         <div class="controls-grid">
             <div class="grid-btn" onclick="toggleFilters()">
@@ -221,6 +239,7 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
     const video = document.getElementById('mainVideo');
+    const container = document.getElementById('videoContainer');
     let hls = new Hls();
 
     const kanallar = [
@@ -264,7 +283,38 @@
         }
     }
 
-    // Menü Mantığı
+    // BOYUT DEĞİŞTİRME - EKRANI TAM DOLDURMA (STRETCH) ÖNCELİKLİ
+    const fitModes = [
+        { mode: 'fill', label: 'Tam Doldur (Yay)' },
+        { mode: 'contain', label: 'Sığdır (Orantılı)' },
+        { mode: 'cover', label: 'Kırp ve Doldur' }
+    ];
+    let currentFit = 0;
+    function toggleFit() {
+        currentFit = (currentFit + 1) % fitModes.length;
+        video.style.objectFit = fitModes[currentFit].mode;
+    }
+
+    // TAM EKRAN VE YATAY MOD
+    async function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            try {
+                if (container.requestFullscreen) await container.requestFullscreen();
+                else if (container.webkitRequestFullscreen) await container.webkitRequestFullscreen();
+                
+                // Tam ekranda videoyu tam yaymak için otomatik 'fill' yapalım
+                video.style.objectFit = 'fill';
+                
+                if (screen.orientation && screen.orientation.lock) {
+                    await screen.orientation.lock('landscape').catch(() => {});
+                }
+            } catch (e) { console.error(e); }
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+        }
+    }
+
+    // Menü Ayarları
     document.getElementById('menuToggle').onclick = (e) => {
         e.stopPropagation();
         document.getElementById('dropdown').classList.toggle('show');
@@ -277,7 +327,6 @@
         document.getElementById('dropdown').classList.remove('show');
         document.getElementById('palette').classList.remove('show');
     };
-    document.getElementById('dropdown').onclick = (e) => e.stopPropagation();
 
     function setTheme(c) { document.documentElement.style.setProperty('--accent', c); }
     function setFilt(c) { video.className = c; }
@@ -304,3 +353,4 @@
 </script>
 </body>
 </html>
+
