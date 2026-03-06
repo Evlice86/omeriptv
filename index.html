@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ömer Avcı | IPTV Pro Dashboard</title>
-
-    <!-- API Sports Widget - DOĞRU ENTEGRASYON -->
-    <script async src="https://widgets.api-sports.io/2.0.3/widgets.js" type="module"></script>
-
     <style>
         :root {
             --accent: #a855f7;
@@ -15,13 +11,11 @@
             --card: rgba(15, 23, 42, 0.95);
             --transition: all 0.3s ease;
         }
-
         body {
             margin: 0; font-family: 'Inter', sans-serif;
             background: var(--bg); color: #f8fafc; overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
         }
-
         .ticker-wrap {
             width: 100%; overflow: hidden; background: #000;
             border-bottom: 1px solid var(--accent); height: 35px;
@@ -36,7 +30,6 @@
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
-
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 15px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
@@ -45,7 +38,6 @@
         .logo { font-size: 1.2rem; font-weight: 800; letter-spacing: -1px; }
         .logo span { color: var(--accent); }
         .menu-icon { font-size: 24px; cursor: pointer; color: var(--accent); }
-
         .dropdown-menu {
             position: absolute; top: 50px; right: 15px; width: 220px;
             background: #0f172a; border: 2px solid var(--accent);
@@ -65,9 +57,7 @@
         }
         .color-palette.show { display: grid; }
         .color-opt { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); }
-
         .container { max-width: 850px; margin: 0 auto; padding: 10px; }
-
         .player-wrapper {
             background: var(--card); border-radius: 20px; padding: 8px;
             border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px;
@@ -83,7 +73,6 @@
         }
         .f-vivid { filter: saturate(1.6) contrast(1.1); }
         .f-sharp { filter: contrast(1.3) brightness(1.1); }
-
         .now-playing {
             display: flex; align-items: center; gap: 12px;
             padding: 10px 15px; background: rgba(255,255,255,0.03);
@@ -91,7 +80,6 @@
         }
         #activeLogo { width: 45px; height: 30px; object-fit: contain; }
         #activeName { font-weight: 700; font-size: 0.95rem; color: #fff; }
-
         .video-overlay-controls {
             position: absolute; top: 10px; right: 10px;
             display: flex; gap: 8px; z-index: 10;
@@ -103,7 +91,6 @@
             cursor: pointer; backdrop-filter: blur(5px); font-size: 1.1rem; transition: 0.2s;
         }
         .ov-btn:hover { background: var(--accent); transform: scale(1.1); }
-
         .controls-grid {
             display: grid; grid-template-columns: repeat(4, 1fr);
             gap: 8px; margin-top: 10px;
@@ -118,7 +105,6 @@
         }
         .grid-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); color: var(--accent); }
         .grid-btn .icon { font-size: 1.1rem; }
-
         .filter-panel { 
             display: none; gap: 8px; padding: 12px; 
             background: rgba(255,255,255,0.03); border-radius: 12px; margin-top: 10px;
@@ -131,12 +117,11 @@
         }
         .btn:hover { background: var(--accent); }
 
-        /* --- SKOR WIDGET ALANI --- */
+        /* SKOR */
         .score-widget {
             background: var(--card); border-radius: 20px; padding: 15px;
             border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            overflow: hidden;
         }
         .score-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -148,18 +133,61 @@
             color: #ef4444; font-size: 0.8rem; font-weight: bold;
             display: flex; align-items: center; gap: 5px;
         }
-        .live-indicator span {
+        .live-dot-red {
             height: 8px; width: 8px; background: #ef4444; 
             border-radius: 50%; display: inline-block; animation: blink 1s infinite;
         }
-
-        /* Widget'ın tam genişlikte görünmesi için */
-        api-sports-widget {
-            display: block;
-            width: 100%;
+        .score-tabs {
+            display: flex; gap: 8px; margin-bottom: 12px;
+        }
+        .score-tab {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8; padding: 6px 14px; border-radius: 8px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 600; transition: var(--transition);
+        }
+        .score-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .score-list { display: flex; flex-direction: column; gap: 6px; }
+        .match-group { margin-bottom: 4px; }
+        .match-league {
+            font-size: 0.7rem; color: #64748b; padding: 4px 6px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .score-item {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.04); transition: var(--transition);
+        }
+        .score-item:hover { background: rgba(255,255,255,0.05); }
+        .match-time { 
+            color: #10b981; font-weight: bold; font-size: 0.75rem; 
+            min-width: 34px; text-align: center;
+            background: rgba(16,185,129,0.1); border-radius: 6px; padding: 3px 5px;
+        }
+        .match-time.ft { color: #94a3b8; background: rgba(148,163,184,0.1); }
+        .match-time.ns { color: #60a5fa; background: rgba(96,165,250,0.1); }
+        .match-teams { 
+            flex-grow: 1; display: flex; align-items: center; gap: 8px; 
+        }
+        .team { font-weight: 600; flex: 1; font-size: 0.82rem;
+            text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+        .team.home { text-align: right; }
+        .team.away { text-align: left; }
+        .match-score { 
+            font-weight: 900; color: #fff; background: var(--accent); 
+            padding: 4px 10px; border-radius: 8px; letter-spacing: 1px; 
+            font-size: 0.85rem; white-space: nowrap; flex-shrink: 0;
+        }
+        .score-empty {
+            text-align: center; padding: 20px; font-size: 0.85rem; 
+            color: #64748b; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .refresh-btn {
+            background: var(--accent); color: #fff; border: none;
+            padding: 8px 20px; border-radius: 10px; cursor: pointer;
+            font-size: 0.8rem; font-weight: bold;
         }
 
-        /* --- KANAL LİSTESİ --- */
+        /* KANAL */
         .list-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 10px; padding: 0 5px;
@@ -181,7 +209,6 @@
         .ch-name { font-size: 0.9rem; font-weight: bold; flex-grow: 1; }
         .live-dot { height: 6px; width: 6px; background: #ef4444; border-radius: 50%; animation: blink 1s infinite; }
         .stats { font-size: 0.75rem; color: #94a3b8; font-weight: bold; }
-
         @keyframes blink { 50% { opacity: 0.2; } }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
@@ -220,12 +247,10 @@
             </div>
             <video id="mainVideo" controls autoplay playsinline></video>
         </div>
-
         <div id="nowPlaying" class="now-playing">
             <img id="activeLogo" src="" alt="">
             <span id="activeName">Yükleniyor...</span>
         </div>
-
         <div class="controls-grid">
             <div class="grid-btn" onclick="toggleFilters()">
                 <span class="icon">✨</span><span>Görüntü<br>Modu</span>
@@ -240,7 +265,6 @@
                 <span class="icon">🛠️</span><span>Kurtar</span>
             </div>
         </div>
-
         <div class="filter-panel" id="filterPanel">
             <button class="btn" onclick="setFilt('')">Normal</button>
             <button class="btn" onclick="setFilt('f-vivid')">Canlı Renk</button>
@@ -248,28 +272,20 @@
         </div>
     </div>
 
-    <!-- ⚽ CANLI SKOR WİDGET -->
+    <!-- SKOR TABLOSU -->
     <div class="score-widget">
         <div class="score-header">
-            <span>⚽ Canlı Maçlar</span>
-            <div class="live-indicator"><span></span> CANLI</div>
+            <span>⚽ Maç Skorları</span>
+            <div class="live-indicator"><span class="live-dot-red"></span> CANLI</div>
         </div>
-
-        <api-sports-widget
-            data-type="games"
-            data-tab="all">
-        </api-sports-widget>
-
-        <api-sports-widget
-            data-type="config"
-            data-key="bec6c8548ddefd972782c08c6523c8b7"
-            data-sport="football"
-            data-lang="tr"
-            data-theme="dark"
-            data-show-errors="true"
-            data-show-logos="true"
-            data-favorite="true">
-        </api-sports-widget>
+        <div class="score-tabs">
+            <div class="score-tab active" onclick="switchTab('live',this)">🔴 Canlı</div>
+            <div class="score-tab" onclick="switchTab('today',this)">📅 Bugün</div>
+            <div class="score-tab" onclick="switchTab('finished',this)">✅ Biten</div>
+        </div>
+        <div class="score-list" id="scoreList">
+            <div class="score-empty">⏳ Yükleniyor...</div>
+        </div>
     </div>
 
     <div class="list-header">
@@ -282,100 +298,189 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-    const video = document.getElementById('mainVideo');
-    const container = document.getElementById('videoContainer');
-    const activeLogo = document.getElementById('activeLogo');
-    const activeName = document.getElementById('activeName');
-    let hls = new Hls();
+const video = document.getElementById('mainVideo');
+const container = document.getElementById('videoContainer');
+const activeLogo = document.getElementById('activeLogo');
+const activeName = document.getElementById('activeName');
+let hls = new Hls();
 
-    const kanallar = [
-        { ad: "beIN Sports 1 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==", logo: "https://media.info/l/o/6/6589.1491349382.png" },
-        { ad: "beIN Sports 2 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://media.info/l/o/6/6594.1491352241.png" },
-        { ad: "beIN Sports 3 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTMvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/BeIn_Sports_3_Australia.png" },
-        { ad: "beIN Sports 4 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTQvcGxheWxpc3QubTN1OA==", logo: "https://static.wikia.nocookie.net/logopedia/images/b/bc/BS4.svg/revision/latest/scale-to-width-down/250?cb=20200107204039" },
-        { ad: "beIN Sports 5 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTUvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/93010o1631279441.png" },
-        { ad: "beIN Sports Max 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/9/9c/The_new_logo_of_beIN_MAX_1_at_2017.png" },
-        { ad: "Tivibu Spor 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTEvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/qadnsi1642604437.png" },
-        { ad: "Tivibu Spor 2", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTIvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/kuasdm1642604455.png" },
-        { ad: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master.m3u8?hls=1", logo: "https://upload.wikimedia.org/wikipedia/commons/0/04/TRT_1_HD_kurumsal_logo_%282012-2021%29.png" }
-    ];
+const API_KEY = "bec6c8548ddefd972782c08c6523c8b7";
+let currentTab = 'live';
+let allMatches = { live: [], today: [], finished: [] };
 
-    function init() {
-        const box = document.getElementById('channelBox');
-        document.getElementById('chanCount').innerText = `${kanallar.length} Kanal Mevcut`;
-        kanallar.forEach((k, i) => {
-            const div = document.createElement('div');
-            div.className = 'channel-item' + (i === 0 ? ' active' : '');
-            div.innerHTML = `
-                <img src="${k.logo}" class="ch-logo" onerror="this.src='https://via.placeholder.com/60x40?text=TV'">
-                <span class="ch-name">${k.ad}</span>
-                <span class="live-dot"></span>`;
-            div.onclick = () => play(k.url, div, k.ad, k.logo);
-            box.appendChild(div);
-        });
-        play(kanallar[0].url, document.querySelector('.channel-item'), kanallar[0].ad, kanallar[0].logo);
+const kanallar = [
+    { ad: "beIN Sports 1 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTEvcGxheWxpc3QubTN1OA==", logo: "https://media.info/l/o/6/6589.1491349382.png" },
+    { ad: "beIN Sports 2 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://media.info/l/o/6/6594.1491352241.png" },
+    { ad: "beIN Sports 3 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTMvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/BeIn_Sports_3_Australia.png" },
+    { ad: "beIN Sports 4 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTQvcGxheWxpc3QubTN1OA==", logo: "https://static.wikia.nocookie.net/logopedia/images/b/bc/BS4.svg/revision/latest/scale-to-width-down/250?cb=20200107204039" },
+    { ad: "beIN Sports 5 HD", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTUvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/93010o1631279441.png" },
+    { ad: "beIN Sports Max 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3NiZWluc3BvcnRzLTIvcGxheWxpc3QubTN1OA==", logo: "https://upload.wikimedia.org/wikipedia/commons/9/9c/The_new_logo_of_beIN_MAX_1_at_2017.png" },
+    { ad: "Tivibu Spor 1", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTEvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/qadnsi1642604437.png" },
+    { ad: "Tivibu Spor 2", url: "aHR0cHM6Ly9vbmUuYjJhN2ZhMTA5ZWY4NGE2Zi5jbGljay9saXZlL3N0aXZpYnVzcG9yLTIvcGxheWxpc3QubTN1OA==", logo: "https://r2.thesportsdb.com/images/media/channel/logo/kuasdm1642604455.png" },
+    { ad: "TRT 1", url: "https://tv-trt1.medya.trt.com.tr/master.m3u8?hls=1", logo: "https://upload.wikimedia.org/wikipedia/commons/0/04/TRT_1_HD_kurumsal_logo_%282012-2021%29.png" }
+];
+
+function getToday() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function fetchScores() {
+    document.getElementById('scoreList').innerHTML = '<div class="score-empty">⏳ Yükleniyor...</div>';
+    try {
+        const headers = { "x-rapidapi-key": API_KEY, "x-rapidapi-host": "v3.football.api-sports.io" };
+
+        const [liveRes, todayRes] = await Promise.all([
+            fetch("https://v3.football.api-sports.io/fixtures?live=all", { headers }),
+            fetch(`https://v3.football.api-sports.io/fixtures?date=${getToday()}`, { headers })
+        ]);
+
+        const liveData = await liveRes.json();
+        const todayData = await todayRes.json();
+
+        allMatches.live = liveData.response || [];
+        const todayAll = todayData.response || [];
+        allMatches.today = todayAll.filter(m => m.fixture.status.short === 'NS');
+        allMatches.finished = todayAll.filter(m => ['FT','AET','PEN'].includes(m.fixture.status.short));
+
+        renderScores();
+    } catch(e) {
+        document.getElementById('scoreList').innerHTML = `
+            <div class="score-empty">❌ Bağlantı hatası. API key veya internet bağlantısını kontrol edin.
+            <button class="refresh-btn" onclick="fetchScores()">🔄 Tekrar Dene</button></div>`;
+    }
+}
+
+function renderScores() {
+    const scoreBox = document.getElementById('scoreList');
+    const matches = allMatches[currentTab];
+    scoreBox.innerHTML = '';
+
+    if (!matches || matches.length === 0) {
+        const msgs = {
+            live: 'Şu an canlı maç yok.',
+            today: 'Bugün başlamamış planlanmış maç yok.',
+            finished: 'Bugün biten maç bulunamadı.'
+        };
+        scoreBox.innerHTML = `<div class="score-empty">${msgs[currentTab]}<button class="refresh-btn" onclick="fetchScores()">🔄 Yenile</button></div>`;
+        return;
     }
 
-    function play(url, el, name, logo) {
-        document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('active'));
-        if(el) el.classList.add('active');
-        if(name) activeName.innerText = name;
-        if(logo) activeLogo.src = logo;
-        const src = url.includes('https') ? url : atob(url);
-        if (hls) hls.destroy();
-        if (Hls.isSupported()) {
-            hls = new Hls(); hls.loadSource(src); hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+    matches.slice(0, 12).forEach(m => {
+        const g = document.createElement('div');
+        g.className = 'match-group';
+
+        const home = m.teams?.home?.name || '?';
+        const away = m.teams?.away?.name || '?';
+        const hGoal = m.goals?.home ?? '-';
+        const aGoal = m.goals?.away ?? '-';
+        const elapsed = m.fixture?.status?.elapsed;
+        const short = m.fixture?.status?.short;
+        const league = m.league?.name || '';
+
+        let timeLabel = '', timeClass = '';
+        if (short === 'NS') {
+            const t = new Date(m.fixture.date);
+            timeLabel = t.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+            timeClass = 'ns';
+        } else if (short === 'HT') {
+            timeLabel = 'HT';
+        } else if (['FT','AET','PEN'].includes(short)) {
+            timeLabel = 'MS'; timeClass = 'ft';
+        } else {
+            timeLabel = `${elapsed || '?'}'`;
         }
+
+        g.innerHTML = `
+            <div class="match-league">${league}</div>
+            <div class="score-item">
+                <div class="match-time ${timeClass}">${timeLabel}</div>
+                <div class="match-teams">
+                    <span class="team home">${home}</span>
+                    <span class="match-score">${hGoal} - ${aGoal}</span>
+                    <span class="team away">${away}</span>
+                </div>
+            </div>`;
+        scoreBox.appendChild(g);
+    });
+}
+
+function switchTab(tab, el) {
+    currentTab = tab;
+    document.querySelectorAll('.score-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderScores();
+}
+
+function init() {
+    const box = document.getElementById('channelBox');
+    document.getElementById('chanCount').innerText = `${kanallar.length} Kanal Mevcut`;
+    kanallar.forEach((k, i) => {
+        const div = document.createElement('div');
+        div.className = 'channel-item' + (i === 0 ? ' active' : '');
+        div.innerHTML = `
+            <img src="${k.logo}" class="ch-logo" onerror="this.src='https://via.placeholder.com/60x40?text=TV'">
+            <span class="ch-name">${k.ad}</span>
+            <span class="live-dot"></span>`;
+        div.onclick = () => play(k.url, div, k.ad, k.logo);
+        box.appendChild(div);
+    });
+    play(kanallar[0].url, document.querySelector('.channel-item'), kanallar[0].ad, kanallar[0].logo);
+    fetchScores();
+    setInterval(fetchScores, 60000);
+}
+
+function play(url, el, name, logo) {
+    document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('active'));
+    if(el) el.classList.add('active');
+    if(name) activeName.innerText = name;
+    if(logo) activeLogo.src = logo;
+    const src = url.includes('https') ? url : atob(url);
+    if (hls) hls.destroy();
+    if (Hls.isSupported()) {
+        hls = new Hls(); hls.loadSource(src); hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
     }
+}
 
-    const fitModes = ['fill','contain','cover'];
-    let currentFit = 0;
-    function toggleFit() { currentFit = (currentFit+1)%3; video.style.objectFit = fitModes[currentFit]; }
+const fitModes = ['fill','contain','cover'];
+let currentFit = 0;
+function toggleFit() { currentFit = (currentFit+1)%3; video.style.objectFit = fitModes[currentFit]; }
 
-    async function toggleFullScreen() {
-        if (!document.fullscreenElement) {
-            try {
-                await (container.requestFullscreen || container.webkitRequestFullscreen).call(container);
-                video.style.objectFit = 'fill';
-                if (screen.orientation?.lock) await screen.orientation.lock('landscape').catch(()=>{});
-            } catch(e) {}
-        } else { document.exitFullscreen?.(); }
-    }
+async function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        try {
+            await (container.requestFullscreen || container.webkitRequestFullscreen).call(container);
+            video.style.objectFit = 'fill';
+            if (screen.orientation?.lock) await screen.orientation.lock('landscape').catch(()=>{});
+        } catch(e) {}
+    } else { document.exitFullscreen?.(); }
+}
 
-    document.getElementById('menuToggle').onclick = (e) => {
-        e.stopPropagation();
-        document.getElementById('dropdown').classList.toggle('show');
-    };
-    document.getElementById('colorBtn').onclick = (e) => {
-        e.stopPropagation();
-        document.getElementById('palette').classList.toggle('show');
-    };
-    document.body.onclick = () => {
-        document.getElementById('dropdown').classList.remove('show');
-        document.getElementById('palette').classList.remove('show');
-    };
+document.getElementById('menuToggle').onclick = (e) => { e.stopPropagation(); document.getElementById('dropdown').classList.toggle('show'); };
+document.getElementById('colorBtn').onclick = (e) => { e.stopPropagation(); document.getElementById('palette').classList.toggle('show'); };
+document.body.onclick = () => { document.getElementById('dropdown').classList.remove('show'); document.getElementById('palette').classList.remove('show'); };
 
-    function setTheme(c) { document.documentElement.style.setProperty('--accent', c); }
-    function setFilt(c) { video.className = c; }
-    function toggleFilters() { document.getElementById('filterPanel').classList.toggle('show'); }
-    function filterChannels(q) {
-        let count = 0;
-        document.querySelectorAll('.channel-item').forEach(item => {
-            const match = item.innerText.toLowerCase().includes(q.toLowerCase());
-            item.style.display = match ? 'flex' : 'none';
-            if(match) count++;
-        });
-        document.getElementById('chanCount').innerText = `${count} Kanal Bulundu`;
-    }
-    function takeSnap() {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        const a = document.createElement('a'); a.download = 'iptv-ss.png'; a.href = canvas.toDataURL(); a.click();
-    }
+function setTheme(c) { document.documentElement.style.setProperty('--accent', c); }
+function setFilt(c) { video.className = c; }
+function toggleFilters() { document.getElementById('filterPanel').classList.toggle('show'); }
+function filterChannels(q) {
+    let count = 0;
+    document.querySelectorAll('.channel-item').forEach(item => {
+        const match = item.innerText.toLowerCase().includes(q.toLowerCase());
+        item.style.display = match ? 'flex' : 'none';
+        if(match) count++;
+    });
+    document.getElementById('chanCount').innerText = `${count} Kanal Bulundu`;
+}
+function takeSnap() {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const a = document.createElement('a'); a.download = 'iptv-ss.png'; a.href = canvas.toDataURL(); a.click();
+}
 
-    window.onload = init;
+window.onload = init;
 </script>
 </body>
 </html>
