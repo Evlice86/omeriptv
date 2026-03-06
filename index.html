@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ömer Avcı | IPTV Pro Dashboard</title>
+
+    <!-- API Sports Widget - DOĞRU ENTEGRASYON -->
+    <script async src="https://widgets.api-sports.io/2.0.3/widgets.js" type="module"></script>
+
     <style>
         :root {
             --accent: #a855f7;
@@ -18,7 +22,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- KAYAN ÜST BAND --- */
         .ticker-wrap {
             width: 100%; overflow: hidden; background: #000;
             border-bottom: 1px solid var(--accent); height: 35px;
@@ -34,7 +37,6 @@
             100% { transform: translateX(-100%); }
         }
 
-        /* --- HEADER & MENU --- */
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 15px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
@@ -43,7 +45,7 @@
         .logo { font-size: 1.2rem; font-weight: 800; letter-spacing: -1px; }
         .logo span { color: var(--accent); }
         .menu-icon { font-size: 24px; cursor: pointer; color: var(--accent); }
-        
+
         .dropdown-menu {
             position: absolute; top: 50px; right: 15px; width: 220px;
             background: #0f172a; border: 2px solid var(--accent);
@@ -51,14 +53,12 @@
             padding: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.8);
         }
         .dropdown-menu.show { display: block; }
-
         .menu-item { 
             padding: 10px; cursor: pointer; border-radius: 10px; 
             display: flex; justify-content: space-between; align-items: center;
             font-weight: 600; font-size: 0.9rem; transition: var(--transition);
         }
         .menu-item:hover { background: rgba(255,255,255,0.05); color: var(--accent); }
-
         .color-palette {
             display: none; grid-template-columns: repeat(4, 1fr); gap: 8px;
             padding: 8px; border-top: 1px solid rgba(255,255,255,0.1);
@@ -66,8 +66,8 @@
         .color-palette.show { display: grid; }
         .color-opt { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); }
 
-        /* --- PLAYER & CONTROLS --- */
         .container { max-width: 850px; margin: 0 auto; padding: 10px; }
+
         .player-wrapper {
             background: var(--card); border-radius: 20px; padding: 8px;
             border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px;
@@ -77,24 +77,13 @@
             position: relative; border-radius: 15px; overflow: hidden;
             aspect-ratio: 16/9; background: #000; width: 100%;
         }
-
         video { 
-            width: 100% !important; 
-            height: 100% !important; 
-            transition: filter 0.4s; 
-            object-fit: fill;
-            display: block;
+            width: 100% !important; height: 100% !important; 
+            transition: filter 0.4s; object-fit: fill; display: block;
         }
-        
-        .video-box:fullscreen video {
-            width: 100vw;
-            height: 100vh;
-        }
-
         .f-vivid { filter: saturate(1.6) contrast(1.1); }
         .f-sharp { filter: contrast(1.3) brightness(1.1); }
 
-        /* --- ŞİMDİ OYNATILIYOR STİLİ --- */
         .now-playing {
             display: flex; align-items: center; gap: 12px;
             padding: 10px 15px; background: rgba(255,255,255,0.03);
@@ -108,21 +97,19 @@
             display: flex; gap: 8px; z-index: 10;
         }
         .ov-btn {
-            background: rgba(0, 0, 0, 0.6); border: 1px solid var(--accent);
+            background: rgba(0,0,0,0.6); border: 1px solid var(--accent);
             color: white; width: 38px; height: 38px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; backdrop-filter: blur(5px); font-size: 1.1rem;
-            transition: 0.2s;
+            cursor: pointer; backdrop-filter: blur(5px); font-size: 1.1rem; transition: 0.2s;
         }
         .ov-btn:hover { background: var(--accent); transform: scale(1.1); }
 
-        /* --- ALT KONTROL PANELİ --- */
         .controls-grid {
             display: grid; grid-template-columns: repeat(4, 1fr);
             gap: 8px; margin-top: 10px;
         }
         .grid-btn {
-            background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.05);
+            background: #1e293b; border: 1px solid rgba(255,255,255,0.05);
             border-radius: 10px; padding: 10px 2px;
             display: flex; flex-direction: column; align-items: center;
             justify-content: center; gap: 4px; cursor: pointer;
@@ -144,6 +131,34 @@
         }
         .btn:hover { background: var(--accent); }
 
+        /* --- SKOR WIDGET ALANI --- */
+        .score-widget {
+            background: var(--card); border-radius: 20px; padding: 15px;
+            border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .score-header {
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: 800; font-size: 0.95rem; margin-bottom: 12px;
+            color: var(--accent); border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+        .live-indicator {
+            color: #ef4444; font-size: 0.8rem; font-weight: bold;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .live-indicator span {
+            height: 8px; width: 8px; background: #ef4444; 
+            border-radius: 50%; display: inline-block; animation: blink 1s infinite;
+        }
+
+        /* Widget'ın tam genişlikte görünmesi için */
+        api-sports-widget {
+            display: block;
+            width: 100%;
+        }
+
         /* --- KANAL LİSTESİ --- */
         .list-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -154,7 +169,6 @@
             color: white; padding: 12px; border-radius: 12px; margin-bottom: 10px; box-sizing: border-box;
             outline: none; transition: var(--transition); font-size: 0.9rem;
         }
-
         .channel-list { display: flex; flex-direction: column; gap: 8px; }
         .channel-item {
             background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 12px;
@@ -162,8 +176,7 @@
             border: 1px solid transparent; transition: var(--transition);
         }
         .channel-item:hover { background: rgba(255,255,255,0.06); }
-        .channel-item.active { border-color: var(--accent); background: rgba(168, 85, 247, 0.1); }
-        
+        .channel-item.active { border-color: var(--accent); background: rgba(168,85,247,0.1); }
         .ch-logo { width: 50px; height: 35px; object-fit: contain; flex-shrink: 0; }
         .ch-name { font-size: 0.9rem; font-weight: bold; flex-grow: 1; }
         .live-dot { height: 6px; width: 6px; background: #ef4444; border-radius: 50%; animation: blink 1s infinite; }
@@ -203,7 +216,7 @@
         <div class="video-box" id="videoContainer">
             <div class="video-overlay-controls">
                 <div class="ov-btn" title="Görüntü Modu Değiştir" onclick="toggleFit()">📏</div>
-                <div class="ov-btn" title="Tam Ekran (Yatay)" onclick="toggleFullScreen()">🔲</div>
+                <div class="ov-btn" title="Tam Ekran" onclick="toggleFullScreen()">🔲</div>
             </div>
             <video id="mainVideo" controls autoplay playsinline></video>
         </div>
@@ -212,23 +225,19 @@
             <img id="activeLogo" src="" alt="">
             <span id="activeName">Yükleniyor...</span>
         </div>
-        
+
         <div class="controls-grid">
             <div class="grid-btn" onclick="toggleFilters()">
-                <span class="icon">✨</span>
-                <span>Görüntü<br>Modu</span>
+                <span class="icon">✨</span><span>Görüntü<br>Modu</span>
             </div>
             <div class="grid-btn" onclick="video.requestPictureInPicture()">
-                <span class="icon">📺</span>
-                <span>Pencere</span>
+                <span class="icon">📺</span><span>Pencere</span>
             </div>
             <div class="grid-btn" onclick="takeSnap()">
-                <span class="icon">📸</span>
-                <span>Ekran<br>Al</span>
+                <span class="icon">📸</span><span>Ekran<br>Al</span>
             </div>
             <div class="grid-btn" onclick="location.reload()">
-                <span class="icon">🛠️</span>
-                <span>Kurtar</span>
+                <span class="icon">🛠️</span><span>Kurtar</span>
             </div>
         </div>
 
@@ -237,6 +246,30 @@
             <button class="btn" onclick="setFilt('f-vivid')">Canlı Renk</button>
             <button class="btn" onclick="setFilt('f-sharp')">Keskinlik</button>
         </div>
+    </div>
+
+    <!-- ⚽ CANLI SKOR WİDGET -->
+    <div class="score-widget">
+        <div class="score-header">
+            <span>⚽ Canlı Maçlar</span>
+            <div class="live-indicator"><span></span> CANLI</div>
+        </div>
+
+        <api-sports-widget
+            data-type="games"
+            data-tab="all">
+        </api-sports-widget>
+
+        <api-sports-widget
+            data-type="config"
+            data-key="bec6c8548ddefd972782c08c6523c8b7"
+            data-sport="football"
+            data-lang="tr"
+            data-theme="dark"
+            data-show-errors="true"
+            data-show-logos="true"
+            data-favorite="true">
+        </api-sports-widget>
     </div>
 
     <div class="list-header">
@@ -270,7 +303,6 @@
     function init() {
         const box = document.getElementById('channelBox');
         document.getElementById('chanCount').innerText = `${kanallar.length} Kanal Mevcut`;
-        
         kanallar.forEach((k, i) => {
             const div = document.createElement('div');
             div.className = 'channel-item' + (i === 0 ? ' active' : '');
@@ -281,18 +313,14 @@
             div.onclick = () => play(k.url, div, k.ad, k.logo);
             box.appendChild(div);
         });
-        // İlk kanalı başlatırken isim ve logoyu gönderiyoruz
         play(kanallar[0].url, document.querySelector('.channel-item'), kanallar[0].ad, kanallar[0].logo);
     }
 
     function play(url, el, name, logo) {
         document.querySelectorAll('.channel-item').forEach(c => c.classList.remove('active'));
         if(el) el.classList.add('active');
-        
-        // Üst Bilgileri Güncelle
         if(name) activeName.innerText = name;
         if(logo) activeLogo.src = logo;
-
         const src = url.includes('https') ? url : atob(url);
         if (hls) hls.destroy();
         if (Hls.isSupported()) {
@@ -301,30 +329,18 @@
         }
     }
 
-    const fitModes = [
-        { mode: 'fill', label: 'Tam Doldur (Yay)' },
-        { mode: 'contain', label: 'Sığdır (Orantılı)' },
-        { mode: 'cover', label: 'Kırp ve Doldur' }
-    ];
+    const fitModes = ['fill','contain','cover'];
     let currentFit = 0;
-    function toggleFit() {
-        currentFit = (currentFit + 1) % fitModes.length;
-        video.style.objectFit = fitModes[currentFit].mode;
-    }
+    function toggleFit() { currentFit = (currentFit+1)%3; video.style.objectFit = fitModes[currentFit]; }
 
     async function toggleFullScreen() {
         if (!document.fullscreenElement) {
             try {
-                if (container.requestFullscreen) await container.requestFullscreen();
-                else if (container.webkitRequestFullscreen) await container.webkitRequestFullscreen();
+                await (container.requestFullscreen || container.webkitRequestFullscreen).call(container);
                 video.style.objectFit = 'fill';
-                if (screen.orientation && screen.orientation.lock) {
-                    await screen.orientation.lock('landscape').catch(() => {});
-                }
-            } catch (e) { console.error(e); }
-        } else {
-            if (document.exitFullscreen) document.exitFullscreen();
-        }
+                if (screen.orientation?.lock) await screen.orientation.lock('landscape').catch(()=>{});
+            } catch(e) {}
+        } else { document.exitFullscreen?.(); }
     }
 
     document.getElementById('menuToggle').onclick = (e) => {
@@ -343,7 +359,6 @@
     function setTheme(c) { document.documentElement.style.setProperty('--accent', c); }
     function setFilt(c) { video.className = c; }
     function toggleFilters() { document.getElementById('filterPanel').classList.toggle('show'); }
-    
     function filterChannels(q) {
         let count = 0;
         document.querySelectorAll('.channel-item').forEach(item => {
@@ -353,12 +368,11 @@
         });
         document.getElementById('chanCount').innerText = `${count} Kanal Bulundu`;
     }
-
     function takeSnap() {
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
-        const a = document.createElement('a'); a.download = 'ip-tv-ss.png'; a.href = canvas.toDataURL(); a.click();
+        const a = document.createElement('a'); a.download = 'iptv-ss.png'; a.href = canvas.toDataURL(); a.click();
     }
 
     window.onload = init;
